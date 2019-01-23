@@ -16,7 +16,7 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*
@@ -128,28 +128,28 @@ struct starlet_io_t {
 	ARMword dicmdbuf[3];
 	ARMword dimar, dilength;
 	ARMword dicr, diimmbuf, dicfg;
-	
+
 	ARMword gpio1_port, gpio1_dir, gpio1_latch;
 	ARMword gpio1_enable;
 	ARMword gpio1_owner;
-	
+
 	ARMword irq_active, irq_enabled;
 	ARMword irq_active_ppc, irq_enabled_ppc;
 	ARMword timer, alarm;
-	
+
 	ARMword mirror_flags;
 	ARMword boot0_flags;
 	ARMword ahb_flush_flags;
 	ARMword reset_flags;
 	ARMword clocks;
-	
+
 	int ppc_running;
-	
+
 	ARMword boot_code[16];
-	
+
 	ARMword ipc_ppcmsg, ipc_ppcctrl;
 	ARMword ipc_armmsg, ipc_armctrl;
-	
+
 	struct {
 		ARMword csr;
 		ARMword mar;
@@ -157,7 +157,7 @@ struct starlet_io_t {
 		ARMword cr;
 		ARMword data;
 	} exi0, exi1, exi2;
-	
+
 	struct {
 		int cs;
 		int state;
@@ -174,7 +174,7 @@ struct starlet_io_t {
 		u16 *data;
 		u32 wren;
 	} seeprom;
-	
+
 	ARMword ahb_flushcmd;
 
 	ARMword *otp;
@@ -201,11 +201,11 @@ struct starlet_io_t {
 		ARMword capabilities, max_capabilities;
 		ARMword force_event_eirq, force_event_acmd12;
 	} sdhc_reg;
-	
+
 	struct {
 		ARMword blah;
 	} ohci[2];
-	
+
 	int internal;
 };
 
@@ -327,11 +327,11 @@ u8 boot1_patches[] = {
 /*	// disable _ahbMemFlush
 	0xB5,0xF0,0x46,0x5F,0x46,0x56,0x46,0x4D,0x46,0x44,0xB4,0xF0,0x1c,0x04,0x28,0x0c,
 	0x47,0x70,0x46,0x5F,0x46,0x56,0x46,0x4D,0x46,0x44,0xB4,0xF0,0x1c,0x04,0x28,0x0c,
-	
+
 	// ditto (for bc)
 	0xB5,0x70,0x25,0x00,0x28,0x0C,0xD8,0x03,0x4A,0x20,0x00,0x83,0x58,0x9B,0x46,0x9F,
 	0x47,0x70,0x25,0x00,0x28,0x0C,0xD8,0x03,0x4A,0x20,0x00,0x83,0x58,0x9B,0x46,0x9F,
-	
+
 	// make ahbMemFlush always ack (redundant?)
 	0x04,0x1B,0x2B,0x00,0xD0,0x23,0x20,0x01,0xF0,0x00,0xFE,0xB2,0x4B,0x18,0x34,0x01,
 	0x23,0x00,0x2B,0x00,0xD0,0x23,0x20,0x01,0xF0,0x00,0xFE,0xB2,0x4B,0x18,0x34,0x01,
@@ -345,22 +345,22 @@ u8 boot2_fs_patches[] = {
 	// disable jj_virt_to_phys
 	0x47,0x78,0x46,0xC0,0xEA,0xFF,0xFF,0xA9,0x47,0x78,0x46,0xC0,0xEA,0xFF,0xFF,0x1D,
 	0x47,0x70,0x46,0xC0,0xEA,0xFF,0xFF,0xA9,0x47,0x78,0x46,0xC0,0xEA,0xFF,0xFF,0x1D,
-	
+
 };
 
 u8 boot2_kernel_patches[] = {
 	// disable _ahbMemFlush
 	0xB5,0xF0,0x46,0x5F,0x46,0x56,0x46,0x4D,0x46,0x44,0xB4,0xF0,0x1c,0x04,0x28,0x0c,
 	0x47,0x70,0x46,0x5F,0x46,0x56,0x46,0x4D,0x46,0x44,0xB4,0xF0,0x1c,0x04,0x28,0x0c,
-	
+
 	// defang call_ahbMemFlush
 	0x00,0x0D,0x8B,0x40,0x00,0xB5,0x70,0x25,0x00,0x28,0x0C,0xD8,0x03,0x4A,0x20,0x00,
 	0x00,0x0D,0x8B,0x40,0x00,0x47,0x70,0x25,0x00,0x28,0x0C,0xD8,0x03,0x4A,0x20,0x00,
-	
+
 	// disable j_cache_something_0
 	0x02,0xFE,0xC3,0xF0,0x02,0xFE,0xC5,0xE0,0x01,0x24,0x16,0x42,0x64,0x1C,0x20,0xBC,
 	0x02,0xFE,0xC3,0x00,0x00,0x00,0x00,0xE0,0x01,0x24,0x16,0x42,0x64,0x1C,0x20,0xBC,
-	
+
 	// disable delay
 	0xB5,0x00,0x4B,0x16,0x68,0x1B,0x2B,0x00,0xD1,0x10,0x08,0x83,0x18,0x1B,0x09,0x82,
 	0x47,0x70,0x4B,0x16,0x68,0x1B,0x2B,0x00,0xD1,0x10,0x08,0x83,0x18,0x1B,0x09,0x82,
@@ -374,7 +374,7 @@ void patchit_init(void) {
 	patch_header_boot1.patch_size = 16;
 	patch_header_boot1.search_start = 0x0d400000;
 	patch_header_boot1.search_end = 0x0d417000;
-	
+
 	patch_header_boot2_fs.magic=0x12345678;
 	patch_header_boot2_fs.table_start = boot2_fs_patches;
 	patch_header_boot2_fs.num_patches=1;
@@ -388,13 +388,13 @@ void patchit_init(void) {
 	patch_header_boot2_kernel.patch_size = 16;
 	patch_header_boot2_kernel.search_start = 0xffff0000;
 	patch_header_boot2_kernel.search_end = 0xffffffff;
-	
+
 }
 
 void patchit(ARMul_State *state, struct patchset_header *h) {
 	u32 patchnum, offset;
 	u8 *buf = malloc(h->search_end - h->search_start);
-	
+
 	starlet_arm2host(state, buf, h->search_start, h->search_end - h->search_start);
 	for (patchnum = 0; patchnum < h->num_patches; patchnum++) {
 		printf("Checking patch %d\n", patchnum);
@@ -406,7 +406,7 @@ void patchit(ARMul_State *state, struct patchset_header *h) {
 			}
 		}
 	}
-	starlet_host2arm(state, h->search_start, buf, h->search_end - h->search_start);	
+	starlet_host2arm(state, h->search_start, buf, h->search_end - h->search_start);
 	free(buf);
 }
 
@@ -417,7 +417,7 @@ static void starlet_io_reset(ARMul_State *state)
 	printf("STARLET: IO RESET\n");
 
 	memset(&io, 0, sizeof(io));
-	
+
 	io.srama = malloc(0x10000);
 	io.sramb = malloc(0x8000);
 	io.boot0 = malloc(0x2000);
@@ -425,23 +425,23 @@ static void starlet_io_reset(ARMul_State *state)
 		printf("malloc error in %s\n", __FUNCTION__);
 		exit(-1);
 	}
-	
-	FILE *f = fopen("boot0.bin","rb");
+
+	FILE *f = fopen("./contents/boot0.bin","rb");
 	if (!f) {
-		perror("Error opening boot0.bin: ");
+		perror("Error opening contents/boot0.bin: ");
 		exit(-1);
 	}
-	
+
 	bytes_read = fread(io.boot0, 1, 0x2000, f);
 	if (bytes_read != 0x2000) {
 		printf("Short read on boot0: expected %d bytes, read %d bytes\n", 0x2000, bytes_read);
 		exit(-1);
 	}
 	fclose(f);
-	
+
 	state->mmu.control |= CONTROL_VECTOR;
 	ARMul_Abort(state, ARMul_ResetV);
-	
+
 	io.gpio1_latch = 0x20;
 }
 
@@ -659,9 +659,9 @@ static void starlet_print_context(ARMul_State *state) {
 static ARMword starlet_di_read(ARMul_State *state, ARMword offset)
 {
 	ARMword data = 0;
-	
+
 	//printf("[STARLET] DIread offset:0x%x", offset);
-	
+
 	switch(offset&0xFF) {
 		case 0x0:
 			data = io.disr;
@@ -693,31 +693,31 @@ static ARMword starlet_di_read(ARMul_State *state, ARMword offset)
 		case 0x24:
 			data = io.dicfg;
 			break;
-	
+
 	}
-	
+
 	//printf(" = 0x%08x\n", data);
 	return data;
 }
 
 void starlet_do_di_command(ARMul_State *state) {
-	
+
 	ARMword command;
 	off_t offset;
 	ARMword len;
 	ARMword buf;
 	int blah;
-	
+
 	unsigned char *data = NULL;
-	
+
 	static FILE *f = NULL;
-	
+
 	printf("[STARLET] DICOMMAND %08x %08x %08x -> %08x len %08x\n",
 		   io.dicmdbuf[0], io.dicmdbuf[1], io.dicmdbuf[2],
 	 io.dimar, io.dilength);
 
 	command = io.dicmdbuf[0];
-	
+
 	if(!f) {
 		f = fopen("disc.iso","rb");
 		if(!f) {
@@ -725,45 +725,45 @@ void starlet_do_di_command(ARMul_State *state) {
 			skyeye_exit(1);
 		}
 	}
-			
+
 	if(!data) {
 		data = malloc(32768);
 	}
-	
+
 	switch(command) {
-	
+
 		case 0xa8000040:
 		case 0xa8000000:
-			
+
 			offset = io.dicmdbuf[1];
 			offset <<=2;
 			len = io.dicmdbuf[2];
 			buf = io.dimar;
-			
+
 			printf("[STARLET] Disc or ID read [ 0x%09x 0x%08x ]\n", (unsigned int)offset, len);
-			
+
 			if(len > 32768) {
 				printf("[STARLET] DI length too large\n");
 				break;
 			}
-			
+
 			fseek(f, offset, SEEK_SET);
 			blah=fread(data, 1, len, f);
 			if (blah != len) printf("short read: %d != %d\n", blah, len);
-			
+
 			starlet_host2arm(state, buf, data, len);
-			
+
 			//TODO interrupt here
-			
+
 			io.dicr &= ~1;
 			io.disr |= TCINT;
-			
+
 			break;
-	
+
 		default:
 			printf("[STARLET] Unknown DI command 0x%08x\n",command);
 	}
-	
+
 }
 
 static void starlet_di_write(ARMul_State *state, ARMword offset, ARMword data)
@@ -821,7 +821,7 @@ static void starlet_di_write(ARMul_State *state, ARMword offset, ARMword data)
 		case 0x24:
 			io.dicfg = data;
 			break;
-	}	
+	}
 }
 
 static ARMword starlet_otp_getdata(ARMul_State *state) {
@@ -1150,7 +1150,7 @@ static u8 gecko_exchange(u8 byte)
 	u8 b;
 	if(!io.gecko.cs)
 		return 0;
-	
+
 	switch(io.gecko.state) {
 		case -1:
 			return 0;
@@ -1201,7 +1201,7 @@ static ARMword starlet_exi_read(ARMul_State *state, ARMword addr)
 		case 0x30: return io.exi2.len;
 		case 0x34: return io.exi2.cr;
 		case 0x38: return io.exi2.data;
-		
+
 		case 0x40:
 		case 0x44:
 		case 0x48:
@@ -1327,7 +1327,7 @@ static ARMword starlet_hollywood_read(ARMul_State *state, ARMword addr)
 		case 0x0194: return io.reset_flags;
 		case 0x01b0: return 0x4011c0;
 		case 0x01b4: return 0x18000018;
-		case 0x01d8: break;		
+		case 0x01d8: break;
 		case 0x01f0: return starlet_otp_getdata(state);
 //		case 0x0214: return 0xf0;
 		case 0x0214: break;
@@ -1361,20 +1361,20 @@ static void starlet_hollywood_write(ARMul_State *state, ARMword addr, ARMword da
 		break;
 		case 0x010: io.timer=data; break;
 		case 0x014: /*DEBUG("Set alarm=%x\n", data);*/ io.alarm=data; break;
-		case 0x30: 
+		case 0x30:
 			io.irq_active_ppc &= ~data;
 		break;
-		case 0x34: 
+		case 0x34:
 			io.irq_enabled_ppc=data;
 		break;
-		case 0x38: 
+		case 0x38:
 			io.irq_active &= ~data;
-			//DEBUG("@%08x: Set irq_active=%08x\n", ARMul_GetPC(state), io.irq_active); 
+			//DEBUG("@%08x: Set irq_active=%08x\n", ARMul_GetPC(state), io.irq_active);
 			starlet_update_int(state);
 		break;
-		case 0x3C: 
+		case 0x3C:
 			io.irq_enabled=data;
-			//DEBUG("@%08x: Set irq_enabled=%08x (pending=%08x)\n", ARMul_GetPC(state), io.irq_enabled, io.irq_active); 
+			//DEBUG("@%08x: Set irq_enabled=%08x (pending=%08x)\n", ARMul_GetPC(state), io.irq_enabled, io.irq_active);
 			starlet_update_int(state);
 		break;
 		case 0x60:
@@ -1385,7 +1385,7 @@ static void starlet_hollywood_write(ARMul_State *state, ARMword addr, ARMword da
 		DEBUG("Set Legacy DI=%d, EXI Boot Buf Enable=%d\n", (data & 0x10)>>4, data & 1);
 		break;
 		case 0x88:  DEBUG("%x: %08x -> %08x\n", addr & 0xFFFF, old, data); break;
-		
+
 		case 0x0c0: starlet_gpio1_latch_write(state,(data & io.gpio1_owner) | (io.gpio1_latch & (io.gpio1_owner ^ 0xFFFFFF)));  return;
 		case 0x0c4: starlet_gpio1_dir_write(state,(data & io.gpio1_owner) | (io.gpio1_dir & (io.gpio1_owner ^ 0xFFFFFF))); return;
 		case 0x0c8: starlet_gpio1_port_write(state,(data & io.gpio1_owner) | (io.gpio1_port & (io.gpio1_owner ^ 0xFFFFFF))); return;
@@ -1400,8 +1400,8 @@ static void starlet_hollywood_write(ARMul_State *state, ARMword addr, ARMword da
 			io.boot0_flags &= 0xfffffff0;
 			if(!(data & 0x10000))
 				io.boot0_flags |= 9;
-				
-				
+
+
 			break;
 		case 0x18c: io.boot0_flags = data; break;
 		case 0x190:
@@ -1423,7 +1423,7 @@ static void starlet_hollywood_write(ARMul_State *state, ARMword addr, ARMword da
 			DEBUG("%x: %08x -> %08x\n", addr & 0xFFFF, old, data); break;
 		case 0x1ec: starlet_otp_setaddr(state, data); return;
 		case 0x130: break;
-		
+
 		case 0x100: break;
 		case 0x104: break;
 		case 0x108: break;
@@ -1440,8 +1440,8 @@ static void starlet_hollywood_write(ARMul_State *state, ARMword addr, ARMword da
 		break;
 	}
 	wbe32(hollywood_port_state+(addr & 0xFFFF), data);
-	
-	
+
+
 }
 
 ARMword dram_4074=0, dram_4076=0;
@@ -1471,8 +1471,8 @@ static void starlet_dram_write(ARMul_State *state, ARMword addr, ARMword data)
 		break;
 	}
 //	wbe32(hollywood_port_state+(addr & 0xFFFF), data);
-	
-	
+
+
 }
 
 unsigned char AES_key[16];
@@ -1492,7 +1492,7 @@ char * keytostr(unsigned char *key) {
 
 static void starlet_aes_command(ARMul_State *state, ARMword command) {
 	AES_KEY aeskey;
-	
+
 	if (command & 0x80000000) {
 		int iv_reset_flag = (command & 0x1000)?0:1;
 		int num_bytes = ((command & 0xFFF) +1) * 0x10;
@@ -1515,7 +1515,7 @@ static void starlet_aes_command(ARMul_State *state, ARMword command) {
 		} else {
 			memcpy(AES_dest_buf, AES_src_buf, num_bytes);
 		}
-		
+
 		starlet_host2arm(state, AES_dest_ptr, AES_dest_buf, num_bytes);
 		memcpy(temp_iv, AES_src_buf + num_bytes - 0x10, 0x10);
 		AES_src_ptr += num_bytes;
@@ -1531,8 +1531,8 @@ static void starlet_aes_command(ARMul_State *state, ARMword command) {
 static ARMword starlet_aes_read(ARMul_State *state, ARMword addr)
 {
 	switch(addr & 0xFFFF) {
-		case 0x0000: 
-//			DEBUG("%x: starlet_aes_read(status)=0\n",ARMul_GetPC(state)); 
+		case 0x0000:
+//			DEBUG("%x: starlet_aes_read(status)=0\n",ARMul_GetPC(state));
 			return 0;
 		default:
 		break;
@@ -1544,15 +1544,15 @@ static ARMword starlet_aes_read(ARMul_State *state, ARMword addr)
 
 static void starlet_aes_write(ARMul_State *state, ARMword addr, ARMword data)
 {
-	//DEBUG("%x: %s(addr:0x%08x, data=%08x)\n", 
-	//	ARMul_GetPC(state), __FUNCTION__, addr, data);	
+	//DEBUG("%x: %s(addr:0x%08x, data=%08x)\n",
+	//	ARMul_GetPC(state), __FUNCTION__, addr, data);
 	switch(addr & 0xFFFF) {
-		case 0x0000: 
+		case 0x0000:
 		return starlet_aes_command(state, data);
-		case 0x0004: //DEBUG("AES: source addr = %08x)\n", data); 
+		case 0x0004: //DEBUG("AES: source addr = %08x)\n", data);
 			AES_src_ptr = data;
 			return;
-		case 0x0008: 
+		case 0x0008:
 			AES_dest_ptr = data;
 			//DEBUG("AES: dest addr = %08x\n", data);
 			return;
@@ -1563,7 +1563,7 @@ static void starlet_aes_write(ARMul_State *state, ARMword addr, ARMword data)
 			AES_key[13] = (data >> 16) & 0xff;
 			AES_key[14] = (data >> 8) & 0xff;
 			AES_key[15] = data & 0xff;
-		
+
 			return;
 		case 0x0010:
 			//DEBUG("AES: iv = %08x\n", data);
@@ -1573,7 +1573,7 @@ static void starlet_aes_write(ARMul_State *state, ARMword addr, ARMword data)
 			AES_iv[14] = (data >> 8) & 0xff;
 			AES_iv[15] = data & 0xff;
 			return;
-		
+
 		default:
 			break;
 	}
@@ -1591,14 +1591,14 @@ static ARMword starlet_sha_read(ARMul_State *state, ARMword addr)
 	ARMword retval;
 	u8 *hash;
 	switch(addr & 0xFFFF) {
-	case 0x0000: 
-//		DEBUG("%x: starlet_sha_read(status)=0\n",ARMul_GetPC(state)); 
+	case 0x0000:
+//		DEBUG("%x: starlet_sha_read(status)=0\n",ARMul_GetPC(state));
 		return 0;
 	case 0x0008: //DEBUG("SHA: Finalizing\n");
 	case 0x000C:
-	case 0x0010: 
-	case 0x0014: 
-	case 0x0018: 
+	case 0x0010:
+	case 0x0014:
+	case 0x0018:
 		// don't look at this...
 		hash = SHA_result;
 		u32 i;
@@ -1640,32 +1640,32 @@ static void starlet_sha_write(ARMul_State *state, ARMword addr, ARMword data)
 				}
 			}
 			return;
-		case 0x0004: 
+		case 0x0004:
 			//DEBUG("SHA: address=%08x\n", data);
 			SHA_src_ptr = data;
 			return;
 		/* We ignore these next writes because SHA1_Init takes care of setting them */
 		case 0x0008:
 			//if (data != 0x67452301)
-			//	DEBUG("starlet_sha_write(h1,%08x)\n", data); 
+			//	DEBUG("starlet_sha_write(h1,%08x)\n", data);
 			SHA_ctx.Message_Digest[0] = data;
 			return;
-		case 0x000C: 
+		case 0x000C:
 			//if (data != 0xEFCDAB89)
 			//	DEBUG("starlet_sha_write(h2,%08x)\n", data);
 			SHA_ctx.Message_Digest[1] = data;
 			return;
-		case 0x0010: 
+		case 0x0010:
 			//if (data != 0x98BADCFE)
 			//	DEBUG("starlet_sha_write(h3,%08x)\n", data);
 			SHA_ctx.Message_Digest[2] = data;
 			return;
-		case 0x0014: 
+		case 0x0014:
 			//if (data != 0x10325476)
 			//	DEBUG("starlet_sha_write(h4,%08x)\n", data);
 			SHA_ctx.Message_Digest[3] = data;
 			return;
-		case 0x0018: 
+		case 0x0018:
 			//if (data != 0xC3D2E1F0)
 			//	DEBUG("starlet_sha_write(h5,%08x)\n", data);
 			SHA_ctx.Message_Digest[4] = data;
@@ -1785,7 +1785,7 @@ static ARMword starlet_ohc_read(ARMul_State *state, int id, ARMword addr)
 // SD Host Controller
 //
 #include "sdhcreg.h"
-static enum { 
+static enum {
 	SD_STATE_IDLE,
 } sd_state;
 static int sd_app_cmd = 0;
@@ -1875,7 +1875,7 @@ static void starlet_sdhc_exec(ARMul_State *state)
 		starlet_sdhc_fire_irq(state, SDHC_COMMAND_COMPLETE);
 		goto done;
 	}
-	
+
 	if (command == 9) {
 		DEBUG("      -> SEND_CSD\n");
 		// only SDHC mode for now because meh
@@ -1888,7 +1888,7 @@ static void starlet_sdhc_exec(ARMul_State *state)
 		starlet_sdhc_fire_irq(state, SDHC_COMMAND_COMPLETE);
 		goto done;
 	}
-	
+
 	if (command == 2) {
 		DEBUG("      -> SEND_CID\n");
 		// only SDHC mode for now because meh
@@ -1901,7 +1901,7 @@ static void starlet_sdhc_exec(ARMul_State *state)
 		starlet_sdhc_fire_irq(state, SDHC_COMMAND_COMPLETE);
 		goto done;
 	}
-	
+
 	if (command == 18) {
 		/*DEBUG("      -> READ_MULTIPLE 0x%x %04x %d -> %08x\n",
 			  io.sdhc_reg.argument, io.sdhc_reg.blk_size, io.sdhc_reg.blk_cnt,
@@ -2265,7 +2265,7 @@ static ARMword starlet_io_read_word(ARMul_State *state, ARMword addr)
 			break;
 	}
 	DEBUG("@%08x: UNIMPLEMENTED: %s(addr:0x%08x)\n", ARMul_GetPC(state), __FUNCTION__, addr);
-	
+
 	return 0;
 }
 
@@ -2309,7 +2309,7 @@ static void starlet_io_write_word(ARMul_State *state, ARMword addr, ARMword data
 		default:
 			break;
 	}
-	
+
 	DEBUG("UNIMPLEMENTED: %s(addr:0x%08x, data:0x%x)\n", __FUNCTION__, addr, data);
 }
 
@@ -2397,7 +2397,7 @@ int sendall(int s, void *buf, int len)
 		total += n;
 		bytesleft -= n;
 	}
-	
+
 	return n==-1?-1:0; // return -1 on failure, 0 on success
 }
 
@@ -2416,7 +2416,7 @@ int recvall(int s, void *buf, int len)
 		total += n;
 		bytesleft -= n;
 	}
-	
+
 	return n==-1?-1:0; // return -1 on failure, 0 on success
 }
 
@@ -2518,7 +2518,7 @@ static void starlet_do_ipc(ARMul_State *state)
 	int len;
 	unsigned int t;
 	int res;
-	
+
 	switch(ipcs)
 	{
 		case IPC_INIT:
@@ -2719,9 +2719,9 @@ char *starlet_get_string(ARMul_State *state, ARMword pointer)
 	static char buf[0x1000];
 	char *ptr;
 	int i;
-	
+
 	ptr = buf;
-	
+
 	for(i=0; i<0x1000; i++) {
 		int byte = ARMul_LoadByte(state, pointer++);
 		*ptr++ = byte;
@@ -2781,7 +2781,7 @@ void starlet_IOS_ThreadSetPriority(ARMul_State *state, ARMword tid, ARMword prio
 		mem_write_word(state, scaddr, 0xe6000050);
 		printf("0x%08x\n", ARMul_ReadWord(state, scaddr) );
 	}
-	
+
 }
 
 
@@ -2852,9 +2852,9 @@ void starlet_IOS_DeviceRegister(ARMul_State *state, ARMword name, ARMword queue)
 {
 
 	char *dev;
-	
+
 	dev = starlet_get_string(state, name);
-	
+
 	printf("[%s] IOS_DeviceRegister(\"%s\", %d)\n", get_context(state), dev, queue);
 }
 
@@ -2866,7 +2866,7 @@ void starlet_IOS_AckMessage(ARMul_State *state, ARMword qaddr, ARMword value)
 void starlet_IOS_DeviceOpen(ARMul_State *state, ARMword pname, ARMword mode)
 {
 	char *name;
-	
+
 	name = starlet_get_string(state, pname);
 	printf("[%s] IOS_Open(\"%s\", %d)\n", get_context(state), name, mode);
 }
@@ -2902,7 +2902,7 @@ void starlet_IOS_DeviceIoctlv(ARMul_State *state, ARMword fd, ARMword num, ARMwo
 		ARMword offset, len;
 	} vecs[256];
 	int i;
-	
+
 	printf("[%s] IOS_Ioctlv(%d, 0x%x, %d, %d, 0x%08x)\n", get_context(state), fd, num, ins, outs, pvecs);
 	if((ins+outs) < 256) {
 		for(i=0;i<(ins+outs);i++) {
@@ -2916,7 +2916,7 @@ void starlet_IOS_DeviceIoctlv(ARMul_State *state, ARMword fd, ARMword num, ARMwo
 void starlet_IOS_DeviceOpenAsync(ARMul_State *state, ARMword pname, ARMword mode, ARMword queue, ARMword message)
 {
 	char *name;
-	
+
 	name = starlet_get_string(state, pname);
 	printf("[%s] IOS_OpenAsync(\"%s\", %d, %08x, %08x)\n", get_context(state), name, mode, queue, message);
 }
@@ -2952,8 +2952,8 @@ void starlet_IOS_DeviceIoctlvAsync(ARMul_State *state, ARMword fd, ARMword num, 
 		ARMword offset, len;
 	} vecs[256];
 	int i;
-	
-	printf("[%s] IOS_IoctlvAsync(%d, 0x%x, %d, %d, 0x%08x, %08x, %08x)\n", 
+
+	printf("[%s] IOS_IoctlvAsync(%d, 0x%x, %d, %d, 0x%08x, %08x, %08x)\n",
 		get_context(state), fd, num, ins, outs, pvecs, queue, message);
 	if((ins+outs) < 256) {
 		for(i=0;i<(ins+outs);i++) {
@@ -2984,7 +2984,7 @@ void starlet_IOS_SetGID(ARMul_State *state, ARMword gid)
 	2-4  0x5A
 	3-5  0 (imm 32bit keyid only)
 	3-6  0 (imm 32bit keyid only)
-	
+
 */
 
 int get_key_size(ARMword type, ARMword subtype)
@@ -3041,10 +3041,10 @@ void starlet_IOS_SHA1(ARMul_State *state, ARMword pctxt, ARMword pdata, ARMword 
 {
 	char *smodes[] = {"INITIALIZE", "CONTINUE", "FINALIZE"};
 	char *smode;
-	
+
 	if(mode<3) smode = smodes[mode];
 	else smode = "UNKNOWN";
-	
+
 	printf("[%s] IOS_SHA1(0x%08x, 0x%08x, 0x%x, %s, 0x%08x)\n", get_context(state),pctxt,pdata,len,smode,phash);
 
 }
@@ -3053,10 +3053,10 @@ void starlet_IOS_SHA1Async(ARMul_State *state, ARMword pctxt, ARMword pdata, ARM
 {
 	char *smodes[] = {"INITIALIZE", "CONTINUE", "FINALIZE"};
 	char *smode;
-	
+
 	if(mode<3) smode = smodes[mode];
 	else smode = "UNKNOWN";
-	
+
 	printf("[%s] IOS_SHA1Async(0x%08x, 0x%08x, 0x%x, %s, 0x%08x, %d, 0x%08x)\n", get_context(state),pctxt,pdata,len,smode,phash,queue,message);
 
 }
@@ -3065,51 +3065,51 @@ void starlet_IOS_AesDecrypt(ARMul_State *state, ARMword key, ARMword piv, ARMwor
 {
 	printf("[%s] IOS_AesDecrypt(%d, 0x%08x, 0x%08x, 0x%x, 0x%08x)\n", get_context(state),
 		key,piv,psrc,len,pdest);
-	
+
 }
 void starlet_IOS_AesEncrypt(ARMul_State *state, ARMword key, ARMword piv, ARMword psrc, ARMword len, ARMword pdest)
 {
 	printf("[%s] IOS_AesEncrypt(%d, 0x%08x, 0x%08x, 0x%x, 0x%08x)\n", get_context(state),
 		key,piv,psrc,len,pdest);
-	
+
 }
 void starlet_IOS_AesDecryptAsync(ARMul_State *state, ARMword key, ARMword piv, ARMword psrc, ARMword len, ARMword pdest, ARMword queue, ARMword message)
 {
 	printf("[%s] IOS_AesDecryptAsync(%d, 0x%08x, 0x%08x, 0x%x, 0x%08x, %d, 0x%08x)\n", get_context(state),
 		key,piv,psrc,len,pdest,queue,message);
-	
+
 }
 void starlet_IOS_AesEncryptAsync(ARMul_State *state, ARMword key, ARMword piv, ARMword psrc, ARMword len, ARMword pdest, ARMword queue, ARMword message)
 {
 	printf("[%s] IOS_AesEncryptAsync(%d, 0x%08x, 0x%08x, 0x%x, 0x%08x, %d, 0x%08x)\n", get_context(state),
 		key,piv,psrc,len,pdest,queue,message);
-	
+
 }
 
 void starlet_IOS_HMAC(ARMul_State *state, ARMword pctxt, ARMword bufa, ARMword alen, ARMword bufb, ARMword blen, ARMword key, ARMword mode, ARMword hmacout)
 {
 	char *smodes[] = {"INITIALIZE", "CONTINUE", "FINALIZE"};
 	char *smode;
-	
+
 	if(mode<3) smode = smodes[mode];
 	else smode = "UNKNOWN";
-	
+
 	printf("[%s] IOS_HMAC(0x%08x, 0x%08x, 0x%x, 0x%08x, 0x%x, %d, %s, 0x%08x)\n",
 		get_context(state), pctxt, bufa, alen, bufb, blen, key, smode, hmacout);
-	
+
 }
 
 void starlet_IOS_HMACAsync(ARMul_State *state, ARMword pctxt, ARMword bufa, ARMword alen, ARMword bufb, ARMword blen, ARMword key, ARMword mode, ARMword hmacout, ARMword queue, ARMword message)
 {
 	char *smodes[] = {"INITIALIZE", "CONTINUE", "FINALIZE"};
 	char *smode;
-	
+
 	if(mode<3) smode = smodes[mode];
 	else smode = "UNKNOWN";
-	
+
 	printf("[%s] IOS_HMACAsync(0x%08x, 0x%08x, 0x%x, 0x%08x, 0x%x, %d, %s, %08x, %d, 0x%08x)\n",
 		get_context(state), pctxt, bufa, alen, bufb, blen, key, smode, hmacout, queue, message);
-		
+
 }
 
 
@@ -3204,7 +3204,7 @@ int syscalls_IOS30[0x100] = {
 	[0x6d] SC_HMAC,
 	[0x6e] SC_HMACASYNC,
 	[0x6f] SC_VERIFYLOADCERT,
-	
+
 };
 
 int disabled_syscalls[0x200] = {
@@ -3242,7 +3242,7 @@ int starlet_undefined_trap (ARMul_State * state, ARMword instr) {
 		if(syscall < 0x200 && disabled_syscalls[syscall])
 			syscall = SC_IGNORE;
 		switch(syscall) {
-		
+
 			case 0x00:
 				starlet_IOS_CreateThread(state, state->Reg[0], state->Reg[1], state->Reg[2], state->Reg[3]);
 				break;
@@ -3495,7 +3495,7 @@ void starlet_mach_init(ARMul_State *state, machine_config_t *this_mach)
 		skyeye_exit(-1);
 	}
 	memset(hollywood_port_state, 0, sizeof hollywood_port_state);
-	
+
 	ARMul_SelectProcessor(state, ARM_v5_Prop);
 	state->lateabtSig = HIGH;
 
@@ -3514,13 +3514,12 @@ void starlet_mach_init(ARMul_State *state, machine_config_t *this_mach)
 	this_mach->mach_set_intr = starlet_set_intr;
 	this_mach->mach_pending_intr = starlet_pending_intr;
 	this_mach->mach_update_intr = starlet_update_intr;
-	
+
 	state->undf_trap = starlet_undefined_trap;
-	
+
 	this_mach->state = (void*)state;
 
 	starlet_sdhc_init(state);
 	printf("Starlet Init\n");
 
 }
-
