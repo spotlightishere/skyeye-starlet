@@ -49,14 +49,23 @@
 
 #define STARLET_DEBUG			1
 
-#define PRINT(x...)			printf("[STARLET]: " x)
+#define PRINT(x...)			printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "]: " x)
 
 #if STARLET_DEBUG
-#define DEBUG(x...)			do { starlet_print_context(state); printf("[STARLET]: " x); } while(0)
+#define DEBUG(x...)			do { starlet_print_context(state); printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "]: " x); } while(0)
 #else
 #define DEBUG(x...)			(void)0
 #endif
 #define SOMETIMES_DIVISOR (500000)
+
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 static void starlet_print_context(ARMul_State *state);
 
@@ -428,7 +437,7 @@ static void starlet_io_reset(ARMul_State *state)
 
 	FILE *f = fopen("./contents/boot0.bin","rb");
 	if (!f) {
-		perror("Error opening contents/boot0.bin: ");
+		perror("Error opening ./contents/boot0.bin: ");
 		exit(-1);
 	}
 
@@ -617,6 +626,7 @@ static int get_context_id(ARMul_State *state) {
 }
 
 static const char *get_context(ARMul_State *state) {
+	static char end[strlen(ANSI_COLOR_BLUE) + 10 + strlen(ANSI_COLOR_GREEN)];
 	static char buf[10];
 	ARMword pc = ARMul_GetPC(state);
 	int ctx;
@@ -627,7 +637,9 @@ static const char *get_context(ARMul_State *state) {
 		strcpy(buf, "      ");
 		memcpy(buf, ctx_names[ctx], strlen(ctx_names[ctx]));
 	}
-	return buf;
+
+	sprintf(&end, ANSI_COLOR_BLUE "%s" ANSI_COLOR_RESET, buf);
+	return end;
 }
 
 static void starlet_print_context(ARMul_State *state) {
@@ -647,9 +659,9 @@ static void starlet_print_context(ARMul_State *state) {
 	if((pc & 0xFFFF0000) != (lpc & 0xFFFF0000)) {
 		ctx = get_context_id(state);
 		if(ctx == C_UNKNOWN) {
-			printf("[STARLET]: ========= NOW RUNNING IN   0x%04x CONTEXT (pc:%08x) =========\n", pc>>16, ARMul_GetPC(state));
+			printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "]: ========= NOW RUNNING IN   0x%04x CONTEXT (pc:%08x) =========\n", pc>>16, ARMul_GetPC(state));
 		} else if(ctx != lctx) {
-			printf("[STARLET]: ========= NOW RUNNING IN %8s CONTEXT (pc:%08x) =========\n", ctx_names[ctx], ARMul_GetPC(state));
+			printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "]: ========= NOW RUNNING IN %8s CONTEXT (pc:%08x) =========\n", ctx_names[ctx], ARMul_GetPC(state));
 		}
 		lctx = ctx;
 		lpc = pc;
@@ -712,7 +724,7 @@ void starlet_do_di_command(ARMul_State *state) {
 
 	static FILE *f = NULL;
 
-	printf("[STARLET] DICOMMAND %08x %08x %08x -> %08x len %08x\n",
+	printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "] DICOMMAND %08x %08x %08x -> %08x len %08x\n",
 		   io.dicmdbuf[0], io.dicmdbuf[1], io.dicmdbuf[2],
 	 io.dimar, io.dilength);
 
@@ -721,7 +733,7 @@ void starlet_do_di_command(ARMul_State *state) {
 	if(!f) {
 		f = fopen("disc.iso","rb");
 		if(!f) {
-			printf("[STARLET] Unable to open disc.iso\n");
+			printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "] Unable to open disc.iso\n");
 			skyeye_exit(1);
 		}
 	}
@@ -740,10 +752,10 @@ void starlet_do_di_command(ARMul_State *state) {
 			len = io.dicmdbuf[2];
 			buf = io.dimar;
 
-			printf("[STARLET] Disc or ID read [ 0x%09x 0x%08x ]\n", (unsigned int)offset, len);
+			printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "] Disc or ID read [ 0x%09x 0x%08x ]\n", (unsigned int)offset, len);
 
 			if(len > 32768) {
-				printf("[STARLET] DI length too large\n");
+				printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "] DI length too large\n");
 				break;
 			}
 
@@ -761,7 +773,7 @@ void starlet_do_di_command(ARMul_State *state) {
 			break;
 
 		default:
-			printf("[STARLET] Unknown DI command 0x%08x\n",command);
+			printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "] Unknown DI command 0x%08x\n",command);
 	}
 
 }
@@ -775,7 +787,7 @@ static void starlet_di_write(ARMul_State *state, ARMword offset, ARMword data)
 			io.disr &= ~(DEINTMASK | TCINTMASK | BRKINTMASK);
 			io.disr |= data & (DEINTMASK | TCINTMASK | BRKINTMASK);
 			if(data & BRK) {
-				printf("[STARLET] DI Break requested\n");
+				printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "] DI Break requested\n");
 				io.disr &= ~BRK; //it's complete before it even started
 			}
 			// clear interrupt flags if requested
@@ -835,7 +847,7 @@ static void starlet_otp_setaddr(ARMul_State *state, unsigned int index) {
 		FILE *f;
 		io.otp = malloc(128);
 		DEBUG("OTP: Initializing...\n");
-		f = fopen("otp.bin","rb");
+		f = fopen("./contents/otp.bin","rb");
 		if(f) {
 			if(fread(io.otp, 1, 128, f) != 128) {
 				DEBUG("OTP: File open failed, initializing with 0x0000...\n");
@@ -846,7 +858,7 @@ static void starlet_otp_setaddr(ARMul_State *state, unsigned int index) {
 			}
 			fclose(f);
 		} else {
-			DEBUG("OTP: File open seeprom.bin failed, initializing with 0x0000...\n");
+			DEBUG("OTP: File open ./contents/otp.bin failed, initializing with 0x0000...\n");
 			memset(io.otp, 0, 128);
 		}
 	}
@@ -862,7 +874,7 @@ static void gpio_seeprom(ARMul_State *state, ARMword data) {
 		FILE *f;
 		io.seeprom.data = malloc(0x100);
 		DEBUG("SEEPROM: Initializing...\n");
-		f = fopen("seeprom.bin","rb");
+		f = fopen("./contents/seeprom.bin","rb");
 		if(f) {
 			if(fread(io.seeprom.data, 1, 0x100, f) != 0x100) {
 				DEBUG("SEEPROM: File read failed, initializing with 0x0000...\n");
@@ -871,7 +883,7 @@ static void gpio_seeprom(ARMul_State *state, ARMword data) {
 				DEBUG("SEEPROM: Successfully read data from file\n");
 			}
 		} else {
-			DEBUG("SEEPROM: File open seeprom.bin failed, initializing with 0x0000...\n");
+			DEBUG("SEEPROM: File open ./contents/seeprom.bin failed, initializing with 0x0000...\n");
 			memset(io.seeprom.data, 0, 0x100);
 		}
 		fclose(f);
@@ -1933,9 +1945,9 @@ done:
 static void starlet_sdhc_reset(ARMul_State *state, int cmd, int dat, int all)
 {
 	if (!sd) {
-		sd = fopen("sd.bin", "r+b");
+		sd = fopen("./contents/sd.bin", "r+b");
 		if (sd == NULL) {
-			DEBUG("SDHC: unable to open sd.bin; emulating empty slot.\n");
+			DEBUG("SDHC: unable to open ./contents/sd.bin; emulating empty slot.\n");
 			sd_card_inserted = 0;
 		} else {
 			fseek(sd, 0, SEEK_END);
@@ -2530,7 +2542,7 @@ static void starlet_do_ipc(ARMul_State *state)
 			local.sun_family = AF_UNIX;
 			strcpy(local.sun_path, SOCK_PATH);
 			unlink(local.sun_path);
-			len = strlen(local.sun_path) + sizeof(local.sun_family);
+			len = strlen(local.sun_path) + sizeof(local.sun_family) + 1;
 			fcntl(asock, F_SETFL, O_NONBLOCK);
 			if (bind(asock, (struct sockaddr *)&local, len) == -1) {
 				perror("bind");
@@ -3464,12 +3476,12 @@ int starlet_undefined_trap (ARMul_State * state, ARMword instr) {
 						lbp = pstr[strlen(pstr)-1];
 						break;
 					default:
-						printf("[STARLET] UNIMPLEMENTED: semihosting call %08x (%08x, %08x, %08x)\n",
+						printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "] UNIMPLEMENTED: semihosting call %08x (%08x, %08x, %08x)\n",
 							   state -> Reg[0], state -> Reg[1], state -> Reg[2], state -> Reg[3]);
 				}
 				break;
 			default:
-				printf("[STARLET] UNIMPLEMENTED: swi 0x%06x (%08x, %08x, %08x, %08x)\n", syscall,
+				printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "] UNIMPLEMENTED: swi 0x%06x (%08x, %08x, %08x, %08x)\n", syscall,
 					   state -> Reg[0], state -> Reg[1], state -> Reg[2], state -> Reg[3]);
 				return 0;
 		}
