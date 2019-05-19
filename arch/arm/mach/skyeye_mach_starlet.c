@@ -731,9 +731,9 @@ void starlet_do_di_command(ARMul_State *state) {
 	command = io.dicmdbuf[0];
 
 	if(!f) {
-		f = fopen("disc.iso","rb");
+		f = fopen("./contents/disc.iso","rb");
 		if(!f) {
-			printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "] Unable to open disc.iso\n");
+			printf("[" ANSI_COLOR_GREEN "STARLET" ANSI_COLOR_RESET "] Unable to open ./contents/disc.iso\n");
 			skyeye_exit(1);
 		}
 	}
