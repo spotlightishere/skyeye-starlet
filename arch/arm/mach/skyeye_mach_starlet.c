@@ -2822,9 +2822,14 @@ void starlet_IOS_CreateQueue(ARMul_State *state, ARMword address, ARMword nelem)
 	printf("[%s] IOS_CreateQueue(0x%08x,%d)\n", get_context(state), address, nelem);
 }
 
-void starlet_IOS_DestroyQueue(ARMul_State *state, ARMword address, ARMword nelem)
+void starlet_IOS_DestroyQueue(ARMul_State *state, ARMword queueid, ARMword address)
 {
-	printf("[%s] IOS_DestroyQueue(0x%08x,%d)\n", get_context(state), address, nelem);
+	printf("[%s] IOS_DestroyQueue(%d,0x%08x)\n", get_context(state), queueid, address);
+}
+
+void starlet_IOS_SendMessage(ARMul_State *state, ARMword queueid, ARMword message, ARMword flags)
+{
+	printf("[%s] IOS_SendMessage(%d,0x%08x,0x%08x (%d))\n", get_context(state), queueid, message, flags, flags);
 }
 
 void starlet_IOS_ReadQueue(ARMul_State *state, ARMword queue, ARMword message, ARMword nonblock)
@@ -2872,7 +2877,7 @@ void starlet_IOS_DeviceRegister(ARMul_State *state, ARMword name, ARMword queue)
 
 void starlet_IOS_AckMessage(ARMul_State *state, ARMword qaddr, ARMword value)
 {
-	printf("[%s] IOS_AckMessage(0x%08x, 0x%x (%d)\n", get_context(state),qaddr,value,value);
+	printf("[%s] IOS_AckMessage(0x%08x, 0x%x (%d))\n", get_context(state),qaddr,value,value);
 }
 
 void starlet_IOS_DeviceOpen(ARMul_State *state, ARMword pname, ARMword mode)
@@ -2984,6 +2989,19 @@ void starlet_IOS_SetUID(ARMul_State *state, ARMword uid)
 void starlet_IOS_SetGID(ARMul_State *state, ARMword gid)
 {
 	printf("[%s] IOS_SetGID(%d)\n", get_context(state), gid);
+}
+
+void starlet_alloc_iobuf(ARMul_State *state, ARMword unk, ARMword buflen)
+{
+	printf("[%s] alloc_iobuf(0x%08x,%d)\n", get_context(state), unk, buflen);
+}
+
+void starlet_verify_iobuf(ARMul_State *state, ARMword ptr) {
+	printf("[%s] verify_iobuf(0x%08x)\n", get_context(state), ptr);
+}
+
+void starlet_enable_irq(ARMul_State *state, ARMword deviceid) {
+	printf("[%s] software_IRQ(%d)\n", get_context(state), deviceid);
 }
 
 /* key type sizes
@@ -3145,6 +3163,14 @@ void starlet_IOS_SomeOtherFlush(ARMul_State *state, ARMword type)
 	//printf("[STARLET] IOS_SomeOtherFlush(%d)\n", type);
 }
 
+void starlet_ios_boot(ARMul_State *state, ARMword path, ARMword flag, ARMword version)
+{
+	char *pathStr;
+
+	pathStr = starlet_get_string(state, path);
+	printf("[%s] ios_boot(\"%s\", 0x%08x (%d), %d)\n", get_context(state), pathStr, flag, flag, version);
+}
+
 void starlet_IOS_unknown(ARMul_State *state, int syscall, int nparms)
 {
 	switch(nparms)
@@ -3243,12 +3269,14 @@ int starlet_undefined_trap (ARMul_State * state, ARMword instr) {
 		int *sctab = NULL;
 		switch(iosversion) {
 			case 30:
+			case 80:
 				sctab = syscalls_IOS30;
 				break;
 			case 0:
 				sctab = syscalls_boot2v2;
 				break;
 		}
+
 		if(sctab && syscall < 0x100 && sctab[syscall])
 			syscall = sctab[syscall];
 		if(syscall < 0x200 && disabled_syscalls[syscall])
@@ -3290,6 +3318,9 @@ int starlet_undefined_trap (ARMul_State * state, ARMword instr) {
 				break;
 			case 0x0b:
 				starlet_IOS_DestroyQueue(state, state->Reg[0], state->Reg[1]);
+				break;
+			case 0x0c:
+				starlet_IOS_SendMessage(state, state->Reg[0], state->Reg[1], state->Reg[2]);
 				break;
 			case 0x0e:
 				starlet_IOS_ReadQueue(state, state->Reg[0], state->Reg[1], state->Reg[2]);
@@ -3383,11 +3414,23 @@ int starlet_undefined_trap (ARMul_State * state, ARMword instr) {
 			case 0x30:
 				starlet_IOS_SomeOtherFlush(state, state->Reg[0]);
 				break;
+			case 0x34:
+				starlet_enable_irq(state, state->Reg[0]);
+				break;
+			case 0x36:
+				starlet_alloc_iobuf(state, state->Reg[0], state->Reg[1]);
+				break;
+			case 0x3d:
+				starlet_verify_iobuf(state, state->Reg[0]);
+				break;
 			case 0x3f:
 				starlet_IOS_DCacheInval(state, state->Reg[0], state->Reg[1]);
 				break;
 			case 0x40:
 				starlet_IOS_DCacheFlush(state, state->Reg[0], state->Reg[1]);
+				break;
+			case 0x42:
+				starlet_ios_boot(state, state->Reg[1], state->Reg[2], state->Reg[3]);
 				break;
 			case 0x4f:
 				break; //annoying shit
