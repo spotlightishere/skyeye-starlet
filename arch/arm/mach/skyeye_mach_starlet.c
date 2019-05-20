@@ -3196,26 +3196,26 @@ enum high_syscalls {
 
 int syscalls_boot2v2[0x100] = {
 	// shut these up
-	[0x68] SC_AESDECRYPTASYNC,
-	[0x6b] SC_HMAC,
-	[0x6c] SC_HMACASYNC,
+	[0x68] = SC_AESDECRYPTASYNC,
+	[0x6b] = SC_HMAC,
+	[0x6c] = SC_HMACASYNC,
 };
 
 int syscalls_IOS30[0x100] = {
-	[0x5b] SC_CREATEKEY,
-	[0x5c] SC_REMOVEKEY,
-	[0x5d] SC_LOADDECRYPTKEY,
-	[0x63] SC_GETKEYID,
-	[0x66] SC_SHA1ASYNC,
-	[0x67] SC_SHA1,
-	[0x68] SC_AESENCRYPTASYNC,
-	[0x69] SC_AESENCRYPT,
-	[0x6a] SC_AESDECRYPTASYNC,
-	[0x6b] SC_AESDECRYPT,
-	[0x6c] SC_VERIFYHASH,
-	[0x6d] SC_HMAC,
-	[0x6e] SC_HMACASYNC,
-	[0x6f] SC_VERIFYLOADCERT,
+	[0x5b] = SC_CREATEKEY,
+	[0x5c] = SC_REMOVEKEY,
+	[0x5d] = SC_LOADDECRYPTKEY,
+	[0x63] = SC_GETKEYID,
+	[0x66] = SC_SHA1ASYNC,
+	[0x67] = SC_SHA1,
+	[0x68] = SC_AESENCRYPTASYNC,
+	[0x69] = SC_AESENCRYPT,
+	[0x6a] = SC_AESDECRYPTASYNC,
+	[0x6b] = SC_AESDECRYPT,
+	[0x6c] = SC_VERIFYHASH,
+	[0x6d] = SC_HMAC,
+	[0x6e] = SC_HMACASYNC,
+	[0x6f] = SC_VERIFYLOADCERT,
 
 };
 
@@ -3460,18 +3460,26 @@ int starlet_undefined_trap (ARMul_State * state, ARMword instr) {
 	} else if((instr & 0xFF000000) == 0xEF000000) {
 		syscall = instr & 0xFFFFFF;
 		switch(syscall) {
+			// Refer to:
+			// https://developer.arm.com/docs/dui0471/latest/what-is-semihosting
 			case 0xAB: // semihosting (thumb)
 			case 0x12345: // semihosting (arm)
 			case 0x123456: // semihosting (arm)
 				switch(state->Reg[0]) {
+					// semihousing write (raw character)
 					case 3:
 						lbp = ARMul_LoadByte(state, state->Reg[1]);
+						printf(ANSI_COLOR_CYAN);
 						putchar(lbp);
+						printf(ANSI_COLOR_RESET);
 						fflush(stdout);
 						break;
+					// semihosting write (null-terminated)
 					case 4:
 						pstr = starlet_get_string(state, state->Reg[1]);
+						printf(ANSI_COLOR_CYAN);
 						printf("%s",pstr);
+						printf(ANSI_COLOR_RESET);
 						fflush(stdout);
 						lbp = pstr[strlen(pstr)-1];
 						break;
