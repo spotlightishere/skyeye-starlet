@@ -626,7 +626,7 @@ static int get_context_id(ARMul_State *state) {
 }
 
 static const char *get_context(ARMul_State *state) {
-	static char end[strlen(ANSI_COLOR_BLUE) + 10 + strlen(ANSI_COLOR_GREEN)];
+	static char end[sizeof(ANSI_COLOR_BLUE) + 10 + sizeof(ANSI_COLOR_GREEN)];
 	static char buf[10];
 	ARMword pc = ARMul_GetPC(state);
 	int ctx;
