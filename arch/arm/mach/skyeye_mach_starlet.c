@@ -131,6 +131,25 @@ static inline void wbe32(u8 *p, u32 x)
 	wbe16(p + 2, x);
 }
 
+// Derived from http://wiibrew.org/wiki/Bootmii/NAND_dump_format
+struct bootmii_keys_bin {
+   char human_readable_text[256];
+   u8 otp[128];
+   u8 otp_padding[128];
+   u8 seeprom[256];
+   u8 seeprom_padding[256];
+
+	 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 // This is not part of the keys.bin format!
+	 // This is purely for internal use. keys.bin
+	 // is 0x400 in length and nothing more.
+	 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   u8 loaded;
+};
+
+// Static to prevent other allocation.
+static struct bootmii_keys_bin keys;
+
 struct starlet_io_t {
 
 	ARMword disr, dicvr;
@@ -437,7 +456,7 @@ static void starlet_io_reset(ARMul_State *state)
 
 	FILE *f = fopen("./contents/boot0.bin","rb");
 	if (!f) {
-		perror("Error opening ./contents/boot0.bin: ");
+		perror("Error opening ./contents/boot0.bin");
 		exit(-1);
 	}
 
@@ -844,23 +863,19 @@ static ARMword starlet_otp_getdata(ARMul_State *state) {
 
 static void starlet_otp_setaddr(ARMul_State *state, unsigned int index) {
 	if (!io.otp) {
-		FILE *f;
 		io.otp = malloc(128);
 		DEBUG("OTP: Initializing...\n");
-		f = fopen("./contents/otp.bin","rb");
-		if(f) {
-			if(fread(io.otp, 1, 128, f) != 128) {
-				DEBUG("OTP: File open failed, initializing with 0x0000...\n");
-				memset(io.otp, 0, 128);
-			} else {
-				io.otp_index=9;
-				DEBUG("OTP: Successfully read data from file for NG ID %08x\n", starlet_otp_getdata(state));
-			}
-			fclose(f);
+		if(keys.loaded) {
+			memcpy(io.otp, keys.otp, 128);
+			io.otp_index=9;
+
+			DEBUG("OTP: Successfully read data from file for NG ID %08x\n", starlet_otp_getdata(state));
 		} else {
-			DEBUG("OTP: File open ./contents/otp.bin failed, initializing with 0x0000...\n");
+			DEBUG("OTP: keys not loaded, initializing with 0x0000...\n");
 			memset(io.otp, 0, 128);
 		}
+
+		starlet_hexdump(io.otp, 128);
 	}
 	index &= 0xFF;
 	if (index > (128/4)) {
@@ -871,22 +886,16 @@ static void starlet_otp_setaddr(ARMul_State *state, unsigned int index) {
 
 static void gpio_seeprom(ARMul_State *state, ARMword data) {
 	if(!io.seeprom.data) {
-		FILE *f;
 		io.seeprom.data = malloc(0x100);
 		DEBUG("SEEPROM: Initializing...\n");
-		f = fopen("./contents/seeprom.bin","rb");
-		if(f) {
-			if(fread(io.seeprom.data, 1, 0x100, f) != 0x100) {
-				DEBUG("SEEPROM: File read failed, initializing with 0x0000...\n");
-				memset(io.seeprom.data, 0, 0x100);
-			} else {
-				DEBUG("SEEPROM: Successfully read data from file\n");
-			}
+		if(keys.loaded) {
+			memcpy(io.seeprom.data, keys.seeprom, 0x100);
+			DEBUG("SEEPROM: Successfully loaded from keys\n");
 		} else {
-			DEBUG("SEEPROM: File open ./contents/seeprom.bin failed, initializing with 0x0000...\n");
+			DEBUG("SEEPROM: Keys not loaded, initializing with 0x0000...\n");
 			memset(io.seeprom.data, 0, 0x100);
 		}
-		fclose(f);
+
 		io.seeprom.clock = 0;
 		io.seeprom.state = 0;
 		io.seeprom.bits_out = 0;
@@ -3549,8 +3558,6 @@ int starlet_undefined_trap (ARMul_State * state, ARMword instr) {
 #define MACH_IO_WRITE_FUNC(f)		((void (*)(void*, uint32_t, uint32_t))(f))
 #define MACH_IO_UPDATE_INT_FUNC(f)	((void (*)(void*))(f))
 
-
-
 void starlet_mach_init(ARMul_State *state, machine_config_t *this_mach)
 {
 	if (state->bigendSig != HIGH) {
@@ -3585,4 +3592,33 @@ void starlet_mach_init(ARMul_State *state, machine_config_t *this_mach)
 	starlet_sdhc_init(state);
 	printf("Starlet Init\n");
 
+	// Load keys.bin for SEEPROM and OTP usage.
+	FILE *handle = fopen("./contents/keys.bin", "rb");
+	const char *message = "";
+
+	// File needs to exist.
+	if (handle != NULL) {
+		int amount_read = fread(&keys, 1, 1024, handle);
+		fclose(handle);
+
+		// Keys should be equal to 1024 bytes in length.
+		if (amount_read == 1024) {
+			// All backups should start with this string, regardless of text following.
+			const char *magic = "BackupMii";
+			int result = strncmp(keys.human_readable_text, magic, 9);
+			if (result == 0) {
+				keys.loaded = 1;
+			} else {
+				message = "Invalid magic for keys!";
+			}
+		} else {
+			message = "Invalid length for keys!";
+		}
+	} else {
+		message = "Error reading keys file!";
+	}
+
+	if (!keys.loaded) {
+		printf(ANSI_COLOR_RED "%s\nOTP and SEEPROM will initialize as all zeros." ANSI_COLOR_RESET "\n", message);
+	}
 }

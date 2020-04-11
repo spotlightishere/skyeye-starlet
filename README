@@ -1,3 +1,15 @@
+If you're on macOS, this program requires OpenSSL. You'll need to install it somehow, hopefully via a package manager.
+If you're using Homebrew, you can run `brew install openssl`.
+
+Then, you can do as follows to build:
+```
+EXTRA_CFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" make
+```
+
+Regardless of your platform, you'll need your BootMii nand.bin and keys.bin in the folder named "contents".
+
+----
+
 SkyEye-V1.2.x README
 
 yuchen@tsinghua.edu.cn
@@ -36,7 +48,7 @@ standalone binaries.
 	$ make NO_BFD=1
 
 2 Usage (just type below command,then skyeye will show usage information)
-	
+
 	$ ./binary/skyeye -h
 
 NOTICE: you should have
@@ -55,7 +67,7 @@ NOTICE: you should have
 	gtk+-2.0-dev pkg-config atk-dev pango-dev freetype2-dev glib-dev x11-dev
 
 4.2 on MinGW/CygWin
-- At least: 
+- At least:
 	w32api
 - If you don't run "make NO_BFD=1" to compile SkyEye:
 	binutils-dev(bfd)
@@ -89,7 +101,7 @@ Now files in Directory skyeye-v1/arch/arm/common are from GDB/Armulator package.
 You can visit the following url to get its online version:
        http://www.skyeye.org/wiki/UserManual
 
-APPENDIX A: the content of skyeye.conf 
+APPENDIX A: the content of skyeye.conf
 
 #--------------------------------------------------------------------------------
 # memmap.conf and skyeye.conf are all skyeye's hardware configuration files.
@@ -100,31 +112,31 @@ APPENDIX A: the content of skyeye.conf
 #--------------------------------------------------------------------------------
 # below is the cpu config info
 # cpu: maybe arm7tdmi or arm720t
-cpu: arm7tdmi 
+cpu: arm7tdmi
 
 #--------------------------------------------------------------------------------
 # below is the machine(development board) config info
 # machine(develop board) maybe at91 or ep7312
-mach: at91 
+mach: at91
 
 #-------------------------------------------------------------------------------
 #NOTICE: this parameter is useless for skyeye-V0.3.1+
 # have 7 memory bank (include RAM, ROM, mapped IO space)
 # below is the memory config info
-mem_num: 7 
-# map=M means ram/rom, map=I means mapped IO space, 
-# type=RW means can be read or written, 
-# type=R means read only, 
-# addr=0x..... means the mem bank's beginning address, 
-# size=0x..... means the mem bank's memory size,  
-# file=... is the filesystem image file, used for uclinux4skyeye or armlinux4skyeye 
-mem_bank: map=M, type=RW, addr=0x00000000, size=0x00004000 
-mem_bank: map=M, type=RW, addr=0x01000000, size=0x00400000 
-mem_bank: map=M, type=R, addr=0x01400000, size=0x00400000, file=./boot.rom 
-mem_bank: map=M, type=RW, addr=0x02000000, size=0x00400000 
-mem_bank: map=M, type=RW, addr=0x02400000, size=0x00008000 
-mem_bank: map=M, type=RW, addr=0x04000000, size=0x00400000 
-mem_bank: map=I, type=RW, addr=0xf0000000, size=0x10000000 
+mem_num: 7
+# map=M means ram/rom, map=I means mapped IO space,
+# type=RW means can be read or written,
+# type=R means read only,
+# addr=0x..... means the mem bank's beginning address,
+# size=0x..... means the mem bank's memory size,
+# file=... is the filesystem image file, used for uclinux4skyeye or armlinux4skyeye
+mem_bank: map=M, type=RW, addr=0x00000000, size=0x00004000
+mem_bank: map=M, type=RW, addr=0x01000000, size=0x00400000
+mem_bank: map=M, type=R, addr=0x01400000, size=0x00400000, file=./boot.rom
+mem_bank: map=M, type=RW, addr=0x02000000, size=0x00400000
+mem_bank: map=M, type=RW, addr=0x02400000, size=0x00008000
+mem_bank: map=M, type=RW, addr=0x04000000, size=0x00400000
+mem_bank: map=I, type=RW, addr=0xf0000000, size=0x10000000
 #now, add more options on mem_bank
 mem_bank: map=M, type=RW, addr=0x10000000, size=0x00000800, file=./loader.bin,boot=yes
 #start binary program at 0x100000000
@@ -133,7 +145,7 @@ mem_bank: map=M, type=RW, addr=0x10000000, size=0x00000800, file=./loader.bin,bo
 # below is the net config info
 #
 # type: cs8900a, rtl8019, rtl8019_16, s3c4510b
-# mac=.... means the mac addr in simulated NIC, 
+# mac=.... means the mac addr in simulated NIC,
 # ethmod=tuntap/vnet means the virtual driver used in host evnironment,
 # hostip=... means the ip address in host environment to interactive with skyeye.
 # format: type=xxxx mac=xx:xx:xx:xx:xx:xx ethmod=tuntap/vnet hostip=dd.dd.dd.dd
@@ -203,4 +215,3 @@ touchscreen: type=skyeye, base=0xff00b000, size=0x20, int=17
 #
 # example:
 #	flash: type=Am29LV160T-16, base=0x00000000, size=0x02000000, dump=Am29.dump
-
