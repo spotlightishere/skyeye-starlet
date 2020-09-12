@@ -10,11 +10,11 @@ cr = state.cr
 ttbr = state.ttbr
 
 if cr & 1 == 0:
-	print "MMU disabled!"
+	print("MMU disabled!")
 	sys.exit(1)
 
 if ttbr == 0:
-	print "TTBR not set!"
+	print("TTBR not set!")
 	sys.exit(1)
 
 def pap(b):
@@ -90,7 +90,7 @@ def docoarse(addr, base, domain):
 				psize += size
 				continue
 			else:
-				print "%08x -> %08x..%08x [%s] %s"%(pfrom, pto, pto+psize, psiz(psize), pinfo)
+				print("%08x -> %08x..%08x [%s] %s"%(pfrom, pto, pto+psize, psiz(psize), pinfo))
 		
 		pfrom = subaddr
 		pto = base
@@ -98,9 +98,9 @@ def docoarse(addr, base, domain):
 		psize = size
 
 	if pfrom is not None:
-		print "%08x -> %08x..%08x [%s] %s"%(pfrom, pto, pto+psize, psiz(psize), pinfo)
+		print("%08x -> %08x..%08x [%s] %s"%(pfrom, pto, pto+psize, psiz(psize), pinfo))
 
-print "Page tables (TTBR %08x):"%ttbr
+print("Page tables (TTBR %08x):"%ttbr)
 
 level1 = struct.unpack(">4096I",ipc.readmem(ttbr, 16384))
 
@@ -114,7 +114,7 @@ for i,pd in enumerate(level1):
 	t = pd & 3
 	if t != 2:
 		if pfrom is not None:
-			print "%08x -> %08x..%08x [%s] %s"%(pfrom, pto, pto+psize, psiz(psize), pinfo)
+			print("%08x -> %08x..%08x [%s] %s"%(pfrom, pto, pto+psize, psiz(psize), pinfo))
 			pfrom = None
 
 	if t == 0:
@@ -126,7 +126,7 @@ for i,pd in enumerate(level1):
 		docoarse(addr, base, domain)
 		continue
 	if t == 3:
-		print "%08x Fine [D:%d] (not implemented)"%(addr, domain)
+		print("%08x Fine [D:%d] (not implemented)"%(addr, domain))
 		continue
 	
 	cb = (pd>>2)&3
@@ -139,7 +139,7 @@ for i,pd in enumerate(level1):
 			psize += size
 			continue
 		else:
-			print "%08x -> %08x..%08x [%s] %s"%(pfrom, pto, pto+psize, psiz(psize), pinfo)
+			print("%08x -> %08x..%08x [%s] %s"%(pfrom, pto, pto+psize, psiz(psize), pinfo))
 
 	pfrom = addr
 	pto = base
@@ -147,5 +147,5 @@ for i,pd in enumerate(level1):
 	psize = size
 
 if pfrom is not None:
-	print "%08x -> %08x..%08x [%s] %s"%(pfrom, pto, (pto+psize)&0xffffffff, psiz(psize), pinfo)
+	print("%08x -> %08x..%08x [%s] %s"%(pfrom, pto, (pto+psize)&0xffffffff, psiz(psize), pinfo))
 

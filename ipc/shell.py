@@ -4,7 +4,7 @@ import sys, time
 import os, struct, code, traceback, readline
 from ipc import *
 import __main__
-import __builtin__
+import builtins
 
 ipc = SkyeyeIPC()
 
@@ -12,9 +12,9 @@ saved_display = sys.displayhook
 
 def display(val):
 	global saved_display
-	if isinstance(val, int) or isinstance(val, long):
-		__builtin__._ = val
-		print hex(val)
+	if isinstance(val, int) or isinstance(val, int):
+		builtins._ = val
+		print(hex(val))
 	else:
 		saved_display(val)
 
@@ -37,4 +37,3 @@ class ConsoleMod(code.InteractiveConsole):
 		self.write(traceback.format_exception_only(type, value)[0])
 
 ConsoleMod(locals).interact("Have fun!")
-

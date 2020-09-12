@@ -48,17 +48,17 @@ class EmuState:
 		self.banked_regs = self.banks[self.bank]
 
 	def show(self):
-		print "Emulation state:"
+		print("Emulation state:")
 		for i in range(0,16,4):
 			tr = "%3s"%("R%d"%i)
-			print " %s: %08x %08x %08x %08x"%(tr,self.regs[i], self.regs[i+1], self.regs[i+2], self.regs[i+3])
-		print " CPSR: %08x (mode %s)"%(self.cpsr, self.MODE2NAME[self.mode])
-		print " SPSR: %08x"%self.spsr
-		print " CR:   %08x"%self.cr
-		print " TTBR: %08x"%self.ttbr
-		print " DACR: %08x"%self.dacr
-		print " FSR:  %08x"%self.fsr
-		print " FAR:  %08x"%self.far
+			print(" %s: %08x %08x %08x %08x"%(tr,self.regs[i], self.regs[i+1], self.regs[i+2], self.regs[i+3]))
+		print(" CPSR: %08x (mode %s)"%(self.cpsr, self.MODE2NAME[self.mode]))
+		print(" SPSR: %08x"%self.spsr)
+		print(" CR:   %08x"%self.cr)
+		print(" TTBR: %08x"%self.ttbr)
+		print(" DACR: %08x"%self.dacr)
+		print(" FSR:  %08x"%self.fsr)
+		print(" FAR:  %08x"%self.far)
 
 class SkyeyeSocket:
 	def __init__(self, file="ipcsock"):
@@ -72,10 +72,10 @@ class SkyeyeSocket:
 				raise Exception("socket connection broken")
 			totalsent = totalsent + sent
 	def recv(self, size):
-		msg = ''
+		msg = b''
 		while len(msg) < size:
 			chunk = self.sock.recv(size-len(msg))
-			if chunk == '':
+			if chunk == b'':
 				raise Exception("socket connection broken")
 			msg = msg + chunk
 		return msg
@@ -93,8 +93,8 @@ class SkyeyeProtocol(object):
 		self.readbuf = None
 		self.ppcstat = None
 		self.acks = 0
-	
-	def sendmsg(self, msg, arg=0, buf=""):
+
+	def sendmsg(self, msg, arg=0, buf=b''):
 		self.s.send(struct.pack("III", msg, arg, len(buf)) + buf)
 	def recvmsg(self):
 		msg, arg, size = struct.unpack("III", self.s.recv(12))
@@ -130,10 +130,10 @@ class SkyeyeProtocol(object):
 		self.sendmsg(self.MSG_WRITE, addr, buf)
 	def ipcrequest(self, addr):
 		self.sendmsg(self.MSG_MESSAGE, addr)
-	
+
 	def ipcreply(self, addr):
-		print "Unhandled IPC reply: %08x"%addr
-	
+		print("Unhandled IPC reply: %08x"%addr)
+
 	def clearack(self):
 		self.acks = 0
 	def sendack(self):
@@ -147,9 +147,9 @@ class SkyeyeProtocol(object):
 		self.sendmsg(self.MSG_STATE)
 		while self.statebuf is None:
 			self.processmsg()
-		
+
 		return EmuState(self.statebuf)
-	
+
 	def read32(self, addr):
 		return struct.unpack(">I", self.readmem(addr, 4))[0]
 	def read16(self, addr):
@@ -173,11 +173,11 @@ class MemMgr(object):
 		if end%block:
 			raise ValueError("heap end not aligned")
 		self.offset = start
-		self.count = (end - start) / block
+		self.count = (end - start) // block
 		self.blocks = [(self.count,False)]
 		self.block = block
 	def malloc(self, size):
-		size = (size + self.block - 1) / self.block
+		size = (size + self.block - 1) // self.block
 		pos = 0
 		for i, (bsize, full) in enumerate(self.blocks):
 			if not full:
@@ -227,17 +227,17 @@ class MemMgr(object):
 				free += bsize
 		if free + inuse != self.count:
 			raise Exception("Total block size is inconsistent")
-		print "Heap stats:"
-		print " In use: %8dkB"%(inuse * self.block / 1024)
-		print " Free:   %8dkB"%(free * self.block / 1024)
+		print("Heap stats:")
+		print(" In use: %8dkB"%(inuse * self.block // 1024))
+		print(" Free:   %8dkB"%(free * self.block // 1024))
 
 class IPCBuffer(object):
 	def __init__(self, ipcdev, arg):
 		self.ipcdev = ipcdev
-		if isinstance(arg, str):
+		if isinstance(arg, bytes):
 			self.size = len(arg)
 			self.addr = self.ipcdev.mallwrite(arg)
-		elif isinstance(arg, int) or isinstance(arg, long):
+		elif isinstance(arg, int) or isinstance(arg, int):
 			self.size = arg
 			self.addr = self.ipcdev.malloc(arg)
 	def read(self):
@@ -268,7 +268,7 @@ class IPCRequest(object):
 			return (0,0)
 		if isinstance(buf, IPCBuffer):
 			return buf.addr, buf.size
-		elif isinstance(buf, str):
+		elif isinstance(buf, bytes):
 			ibuf = ipcdev.makebuf(buf)
 			self.freebufs.append(ibuf)
 			return ibuf.addr, ibuf.size
@@ -289,7 +289,7 @@ class IPCRequest(object):
 		self.result = struct.unpack(">i", self.ipcdev.readmem(self.addr+4, 4))[0]
 		self.free()
 		self.done = True
-	
+
 	def free(self):
 		for buf in self.freebufs:
 			buf.free()
@@ -313,11 +313,11 @@ class IOSOpen(IPCRequest):
 		self.mode = mode
 		IPCRequest.__init__(self, 1, 0)
 	def prepare(self, ipcdev):
-		pathbuf = ipcdev.makebuf(self.path+"\0")
+		pathbuf = ipcdev.makebuf(self.path.encode()+b"\x00")
 		self.freebufs.append(pathbuf)
 		self.args = [pathbuf.addr, self.mode]
 		return IPCRequest.prepare(self,ipcdev)
-	
+
 class IOSClose(IPCRequest):
 	def __init__(self, fd):
 		IPCRequest.__init__(self, 2, fd)
@@ -351,7 +351,7 @@ class IOSSeek(IPCRequest):
 	def prepare(self, ipcdev):
 		self.args = [self.where & 0xFFFFFFFF, self.whence]
 		return IPCRequest.prepare(self,ipcdev)
-	
+
 class IOSIoctl(IPCRequest):
 	def __init__(self, fd, ioctl, bufi=None, bufo=None):
 		self.ioctl = ioctl
@@ -388,7 +388,7 @@ class IOSIoctlv(IPCRequest):
 				raise ValueError("bad ioctlv format")
 			left = left[1:]
 		return bufs, left
-	
+
 	def prepare(self, ipcdev):
 		fmt = self.format
 		if ':' not in self.format:
@@ -400,10 +400,10 @@ class IOSIoctlv(IPCRequest):
 		obufs, left = self.parse(ipcdev, ofmt, left)
 		if left:
 			raise ValueError("Too many ioctlv arguments")
-		blist = ""
+		blist = b''
 		for addr, size in ibufs + obufs:
 			blist += struct.pack(">II", addr, size)
-		
+
 		blbuf = ipcdev.makebuf(blist)
 		self.freebufs.append(blbuf)
 		self.args = [self.ioctl, len(ibufs), len(obufs), blbuf.addr]
@@ -423,27 +423,27 @@ class SkyeyeIPC(SkyeyeProtocol):
 		return addr
 	def free(self, size):
 		return self.mem.free(size)
-	
-	def async(self, req):
+
+	def fake_async(self, req):
 		addr = req.prepare(self)
 		self.requests[addr] = req
 		self.ipcrequest(addr)
 	def sync(self, req):
-		self.async(req)
+		self.fake_async(req)
 		return req.wait()
 
 	def ipcreply(self, addr):
 		if addr in self.requests:
 			self.requests[addr].reply()
 			return
-		print "Unhandled IPC reply: %08x"%addr
-	
+		print("Unhandled IPC reply: %08x"%addr)
+
 	def delreq(self, addr):
 		del self.requests[addr]
-	
+
 	def makebuf(self, arg):
 		return IPCBuffer(self, arg)
-	
+
 	def IOSOpen(self, path, mode=0):
 		return self.sync(IOSOpen(path, mode))
 	def IOSClose(self, fd):
@@ -477,6 +477,6 @@ class SkyeyeIPC(SkyeyeProtocol):
 
 if __name__=="__main__":
 	ipc = SkyeyeIPC()
-	print "Initializing IPC..."
+	print("Initializing IPC...")
 	ipc.init()
-	print "IPC is initialized"
+	print("IPC is initialized")

@@ -54,10 +54,10 @@ def decode_title(titleid):
 		return "System Channel"
 	return "Unknown title type"
 
-print "Waiting for IPC to start up..."
+print("Waiting for IPC to start up...")
 ipc = SkyeyeIPC()
 ipc.init()
-print "IPC ready"
+print("IPC ready")
 
 # lol
 ipc.IOSClose(0)
@@ -66,27 +66,27 @@ ipc.IOSClose(2)
 ipc.IOSClose(3)
 
 fd = ipc.IOSOpen("/dev/es")
-print "ES fd: %d" % fd
+print("ES fd: %d" % fd)
 if fd < 0:
-	print "Error opening ES"
+	print("Error opening ES")
 	sys.exit(1)
 
 buf = ipc.makebuf(4)
 res = ipc.IOSIoctlv(fd, 0x0e, ":d", buf)
 if res < 0:
-	print "Error %d" % res
+	print("Error %d" % res)
 	buf.free()
 	ipc.IOSClose(fd)
 	sys.exit(1)
 
 numtitles = struct.unpack(">I", buf.read())[0]
-print "Number of titles: %d" % numtitles
+print("Number of titles: %d" % numtitles)
 buf.free()
 
 buf = ipc.makebuf(8 * numtitles)
 res = ipc.IOSIoctlv(fd, 0x0f, "i:d", numtitles, buf)
 if res < 0:
-	print "Error %d" % res
+	print("Error %d" % res)
 	buf.free()
 	ipc.IOSClose(fd)
 	sys.exit(1)
@@ -98,11 +98,11 @@ titles.sort()
 
 buf = ipc.makebuf(4)
 for t in titles:
-	print "\nTitle 0x%016x (%s)\n" % (t, decode_title(t))
+	print("\nTitle 0x%016x (%s)\n" % (t, decode_title(t)))
 
 	res = ipc.IOSIoctlv(fd, 0x34, "q:d", t, buf)
 	if res < 0:
-		print "Error reading the TMD size %d" % res
+		print("Error reading the TMD size %d" % res)
 		continue
 
 	size = struct.unpack(">I", buf.read())[0]
@@ -111,7 +111,7 @@ for t in titles:
 	res = ipc.IOSIoctlv(fd, 0x35, "qi:d", t, size, stmd)
 	if res < 0:
 		stmd.free()
-		print "Error reading the TMD %d" % res
+		print("Error reading the TMD %d" % res)
 		continue
 
 	tmd = wii.WiiTmd(stmd.read())
